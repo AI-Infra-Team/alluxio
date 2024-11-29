@@ -21,9 +21,9 @@ imageTag: latest_unknown_arch
 imagePullPolicy: IfNotPresent
 
 # Security Context
-user: 1000
-group: 1000
-fsGroup: 1000
+user: 0
+group: 0
+fsGroup: 0
 
 # Service Account
 #   If not specified, Kubernetes will assign the 'default'
@@ -241,7 +241,7 @@ journal:
   #
   # [ Optional values ]
   format: # Configuration for journal formatting job
-    runFormat: true # Change to true to format journal
+    runFormat: false # Change to true to format journal
 
 
 # You can enable metastore to use ROCKS DB instead of Heap
@@ -295,24 +295,24 @@ worker:
   jvmOptions:
   nodeSelector: {}
   readinessProbe:
-    initialDelaySeconds: 10
+    initialDelaySeconds: 20
     periodSeconds: 10
     timeoutSeconds: 1
     failureThreshold: 3
     successThreshold: 1
   livenessProbe:
-    initialDelaySeconds: 15
+    initialDelaySeconds: 30
     periodSeconds: 30
     timeoutSeconds: 5
     failureThreshold: 2
   # If you are using Kubernetes 1.18+ or have the feature gate
   # for it enabled, use startupProbe to prevent the livenessProbe
   # from running until the startupProbe has succeeded
-  # startupProbe:
-  #   initialDelaySeconds: 15
-  #   periodSeconds: 30
-  #   timeoutSeconds: 5
-  #   failureThreshold: 2
+  startupProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 2
   tolerations: []
   podAnnotations: {}
   # The ServiceAccount provided here will have precedence over
@@ -343,24 +343,24 @@ jobWorker:
   # JVM options specific to the jobWorker container
   jvmOptions:
   readinessProbe:
-    initialDelaySeconds: 200
+    initialDelaySeconds: 20
     periodSeconds: 10
     timeoutSeconds: 1
     failureThreshold: 3
     successThreshold: 1
   livenessProbe:
-    initialDelaySeconds: 300
+    initialDelaySeconds: 30
     periodSeconds: 30
     timeoutSeconds: 5
     failureThreshold: 2
   # If you are using Kubernetes 1.18+ or have the feature gate
   # for it enabled, use startupProbe to prevent the livenessProbe
   # from running until the startupProbe has succeeded
-  # startupProbe:
-  #   initialDelaySeconds: 15
-  #   periodSeconds: 30
-  #   timeoutSeconds: 5
-  #   failureThreshold: 2
+  startupProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 2
 
 # Tiered Storage
 # emptyDir example
@@ -399,14 +399,18 @@ jobWorker:
 
 tieredstore:
   levels:
-  - level: 0
-    alias: MEM
-    mediumtype: MEM
-    path: /dev/shm
-    type: emptyDir
-    quota: 400Gi
-    high: 0.95
-    low: 0.7
+    - level: 0
+      alias: MEM
+      mediumtype: MEM
+      type: hostPath
+      path: /tmp/alluxio-cache-level0
+      quota: 30Gi
+    - level: 1
+      alias: SSD
+      mediumtype: SSD
+      type: hostPath
+      path: /data02/alluxio-cache-level1,/nvfile-heatstorage
+      quota: 100Gi,1048576Gi # 2P
 
 ## Proxy ##
 proxy:
@@ -508,6 +512,8 @@ fuse:
   # The ServiceAccount provided here will have precedence over
   # the global `serviceAccount`
   serviceAccount:
+  #
+  mountPath: /mnt/alluxio-fuse-2
 
 
 ##  Secrets ##
