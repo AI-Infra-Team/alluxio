@@ -512,8 +512,8 @@ fuse:
   # The ServiceAccount provided here will have precedence over
   # the global `serviceAccount`
   serviceAccount:
-  #
-  mountPath: /mnt/alluxio-fuse-2
+  # FUSE mountPath
+  mountPath: /mnt/alluxio-fuse
 
 
 ##  Secrets ##
