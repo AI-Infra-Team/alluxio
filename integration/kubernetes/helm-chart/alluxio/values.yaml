@@ -409,8 +409,13 @@ tieredstore:
       alias: SSD
       mediumtype: SSD
       type: hostPath
-      path: /data02/alluxio-cache-level1,/nvfile-heatstorage
-      quota: 100Gi,1048576Gi # 2P
+      path: /data02/alluxio-cache-level1
+      quota: 100Gi
+    - level: 2
+      alias: HDD
+      type: hostPath
+      path: /nvfile-heatstorage
+      quota: 10000Gi
 
 ## Proxy ##
 proxy:
